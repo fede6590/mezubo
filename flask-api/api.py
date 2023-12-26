@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 
 app = Flask(__name__)
 
@@ -10,32 +10,36 @@ DB = {
 
 @app.route('/TEST', methods=['GET'])
 def test_roulette():
-    print('TEST_ok')
     return 'TEST_OK'
+
+@app.route('/DB', methods=['GET'])
+def show_DB():
+    return DB
 
 
 @app.route('/roulette', methods=['POST'])
 def create_roulette():
-    print('create_ok')
-    pass
+    roulette_id = len(DB['roulettes']) + 1
+    DB['roulettes'][roulette_id] = {'status': 'closed'}
+    return jsonify({'id': roulette_id})
 
 
 @app.route('/roulette/<int:roulette_id>/open', methods=['POST'])
 def open_roulette(roulette_id):
-    print('open_ok')
-    pass
+    if roulette_id not in DB['roulettes']:
+        return jsonify({'error': 'Roulette not found'}), 404
+    DB['roulettes'][roulette_id] = {'status': 'open'}
+    return f'Roulette {roulette_id} is now open'
 
 
 @app.route('/roulette/<int:roulette_id>/bet', methods=['POST'])
 def place_bet(roulette_id):
-    print('bet_ok')
-    pass
+    return 'bet_ok'
 
 
 @app.route('/roulette/<int:roulette_id>/close', methods=['POST'])
 def close_bets(roulette_id):
-    print('close_ok')
-    pass
+    return 'close_ok'
 
 
 if __name__ == '__main__':

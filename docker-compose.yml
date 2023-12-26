@@ -1,0 +1,15 @@
+version: '3'
+services:
+  flask-api:
+    build:
+      context: ./flask-api
+    ports:
+      - "5000:5000"
+
+  st-app:
+    build:
+      context: ./st-app
+    ports:
+      - "8501:8501" 
+    depends_on:
+      - flask-api
