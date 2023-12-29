@@ -10,11 +10,6 @@ DB = {
 WALLET = 10000
 
 
-@app.route('/TEST', methods=['GET'])
-def test_roulette():
-    return jsonify({'message': 'TEST_OK'})
-
-
 @app.route('/DB', methods=['GET'])
 def show_DB():
     return DB
@@ -39,7 +34,7 @@ def open_roulette(roulette_id):
 
 @app.route('/roulette/<int:roulette_id>/<bet>-<int:amount>', methods=['POST'])
 def place_bet(roulette_id, bet, amount):
-    if roulette_id not in DB['roulettes'] or DB['roulettes'][roulette_id]['status'] != 'open':
+    if roulette_id not in DB['roulettes'] or DB['roulettes'][roulette_id]['status'] != 'opened':
         return jsonify({'error': 'The roulette is closed'}), 400
     global WALLET
     bets = list(range(37)) + ['black', 'red']
