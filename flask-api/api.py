@@ -1,5 +1,6 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
 import random
+import json
 
 app = Flask(__name__)
 
@@ -10,9 +11,9 @@ DB = {
 WALLET = 10000
 
 
-@app.route('/DB', methods=['GET'])
+@app.route('/roulette/DB', methods=['GET'])
 def show_DB():
-    return DB
+    return Response(json.dumps(DB), mimetype='application/json')
 
 
 @app.route('/roulette', methods=['POST'])
@@ -36,9 +37,10 @@ def open_roulette(roulette_id):
 def place_bet(roulette_id, bet, amount):
     if roulette_id not in DB['roulettes'] or DB['roulettes'][roulette_id]['status'] != 'opened':
         return jsonify({'error': 'The roulette is closed'}), 400
+
     global WALLET
     bets = list(range(37)) + ['black', 'red']
-    if bet not in bets:
+    if (int(bet) if bet.isdigit() else bet) not in bets:
         return jsonify({'error': 'Chose a number between 0 and 36, or choose a color (black or red)'})
     elif amount > 10000:
         return jsonify({'error': 'Chose an amount between 1 and 10000'})
@@ -73,17 +75,23 @@ def close_bets(roulette_id):
                 pot = amount * 5
                 WALLET += pot
                 print(f'You won {pot} (x 5 on your bet)')
+            else:
+                print(f'{win_num}... you lose this one')
         elif bet == 'black':
             if win_num in range(1, 37, 2):
                 pot = amount * 1.8
                 WALLET += pot
                 print(f'You won {pot} (x 1.8 on your bet)')
+            else:
+                print('Red... you lose this one')
         elif bet == 'red':
             if win_num in range(0, 37, 2):
                 pot = amount * 1.8
                 WALLET += pot
                 print(f'You won {pot} (x 1.8 on your bet)')
-        del b
+            else:
+                print('Black... you lose this one')
+        DB['roulettes'][roulette_id][b] = 'closed_bet'
     DB['roulettes'][roulette_id]['status'] = 'closed'
     return jsonify({'status': f' you have {WALLET} left'})
 
